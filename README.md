@@ -290,6 +290,17 @@ Upload CSV with historical OHLC data.
 
 ---
 
+## Screenshots
+### 1. **Code Implementation** (~70% AI-Generated)
+AI implemented code based on human specifications:
+
+**Fully AI-Generated:**
+- WebSocket client boilerplate (`binance_websocket.py`)
+- Database ORM setup (`database.py`, `schema.sql`)
+- Flask API endpoints (`flask_server.py`)
+- Dash dashboard layout (`app.py` - initial version)<img width="1896" height="980" alt="image" src="https://github.com/user-attachments/assets/227b9398-f510-44f3-930e-6f5c24098c4c" />
+
+
 ## 📜 License
 
 MIT License - Free to use, modify, and distribute.
