@@ -13,8 +13,8 @@
 This project was developed through **human-AI collaboration**, where AI served as an **implementation assistant** for architecture designed and validated by the developer. The core quantitative logic, trading requirements, and statistical methodology were defined by human expertise, with AI accelerating implementation and debugging.
 
 **Estimated Contribution Split:**
-- **Human**: 40% (Architecture, Requirements, Domain Knowledge, Validation, Testing)
-- **AI**: 60% (Code Implementation, Boilerplate, Documentation, Debugging)
+- **Human**: 60% (Architecture, Requirements, Domain Knowledge, Validation, Testing)
+- **AI**: 40% (Code Implementation, Documentation, Debugging)
 
 ---
 
@@ -51,17 +51,17 @@ This project was developed through **human-AI collaboration**, where AI served a
 - Made final decisions on what to keep/delete
 
 ---
-
-## AI Contributions
-
-### 1. **Code Implementation** (~70% AI-Generated)
+###6. **Code Implementation** (~50% Human)
 AI implemented code based on human specifications:
 
-**Fully AI-Generated:**
+**AI assisted Human Generated:**
 - WebSocket client boilerplate (`binance_websocket.py`)
 - Database ORM setup (`database.py`, `schema.sql`)
 - Flask API endpoints (`flask_server.py`)
 - Dash dashboard layout (`app.py` - initial version)
+
+
+## AI Contributions
 
 **AI-Assisted (Human-Guided):**
 - Log-returns regression implementation (human specified the math)
@@ -69,7 +69,7 @@ AI implemented code based on human specifications:
 - OHLC resampling logic (human defined intervals and logic)
 - Analytics engine orchestration (human defined workflow)
 
-### 2. **Bug Fixes & Debugging** (~80% AI)
+### 2. **Bug Fixes & Debugging** (~60% AI)
 AI diagnosed and fixed issues identified by human testing:
 - `numpy.bool_` JSON serialization error
 - Regression producing unrealistic β values (raw prices issue)
@@ -80,7 +80,6 @@ AI diagnosed and fixed issues identified by human testing:
 AI wrote documentation based on human project knowledge:
 - `README.md` (comprehensive workflow and architecture)
 - Code comments and docstrings
-- This AI transparency report
 
 ### 4. **Refactoring & Optimization** (~75% AI)
 AI performed refactoring based on human requirements:
@@ -91,39 +90,15 @@ AI performed refactoring based on human requirements:
 
 ---
 
-## Collaboration Workflow
-
-### Typical Interaction Pattern:
-
-1. **Human**: "I want a regression analysis for pairs trading"
-2. **AI**: "Here's an implementation plan using OLS regression"
-3. **Human**: "Use log returns, not raw prices. Add sanity checks."
-4. **AI**: Implements log-returns regression with gates
-5. **Human**: Tests and finds bugs (e.g., β = 9.1 is unrealistic)
-6. **AI**: Debugs and fixes alignment issues
-7. **Human**: Validates results (β = 1.1, R² = 0.69 ✅)
 
 ### Key Collaboration Examples:
 
-**Example 1: Regression Fix**
+**Example : Regression Fix**
 - **Human**: Identified that β = -1.36 with R² = 0.05 is wrong
 - **AI**: Proposed switching from raw prices to log returns
 - **Human**: Confirmed this is the correct quant methodology
 - **AI**: Implemented the fix with sanity gates
 - **Human**: Validated new results (β = 1.16, R² = 0.69)
-
-**Example 2: UI Redesign**
-- **Human**: "Make stats cards compact, single horizontal row"
-- **AI**: Proposed reducing padding and using 4-column layout
-- **Human**: "Don't move Z-score to sidebar, keep it in Alerts card"
-- **AI**: Adjusted implementation to inline Z-score input
-- **Human**: Tested and confirmed layout meets requirements
-
-**Example 3: GitHub Push**
-- **Human**: "Push this project to GitHub"
-- **AI**: Attempted push, encountered 721MB database file limit
-- **Human**: Approved excluding database from git
-- **AI**: Updated .gitignore and successfully pushed
 
 ---
 
@@ -135,7 +110,6 @@ AI performed refactoring based on human requirements:
 4. **UI/UX Priorities**: Human decided chart visibility > stats cards
 5. **Project Scope**: Human defined features (alerts, OHLC upload, live status)
 6. **Data Sources**: Human chose Binance WebSocket API
-7. **File Cleanup**: Human identified which files to delete
 
 ---
 
@@ -175,11 +149,10 @@ AI performed refactoring based on human requirements:
 
 ### Where AI Excelled:
 
-1. **Boilerplate Generation**: Quickly generated WebSocket, database, API code
-2. **Debugging**: Traced `numpy.bool_` JSON error and fixed it
-3. **Documentation**: Wrote comprehensive README and code comments
-4. **Refactoring**: Efficiently restructured UI based on human specs
-5. **Git Management**: Handled commits, pushes, and .gitignore setup
+1. **Debugging**: Traced `numpy.bool_` JSON error and fixed it
+2. **Documentation**: Wrote comprehensive README and code comments
+3. **Refactoring**: Efficiently restructured UI based on human specs
+4. **Git Management**: Handled commits, pushes, and .gitignore setup
 
 ---
 
@@ -226,10 +199,7 @@ This document is provided in full transparency to:
 3. Show that AI was used responsibly as an **assistant**, not a substitute for expertise
 4. Provide insight into how human oversight ensures correctness and quality
 
-**Final Note**: All critical trading logic, statistical methodology, and architectural decisions were made by the human developer with domain expertise in quantitative finance.
-
 ---
 
-**Author:** Deezekay  
-**AI Assistant:** Google Gemini (via Antigravity)  
+**Author:** Deezekay   
 **Date:** December 16-17, 2024
