@@ -1,264 +1,314 @@
-# Crypto Analytics Platform - Complete (Phases 1-4)
+# Quant Analytics Platform
 
-A production-grade, real-time quantitative trading analytics platform for cryptocurrency markets with **Flask REST API** and **Plotly Dash dashboard**.
+Professional-grade cryptocurrency pairs trading analytics platform with real-time WebSocket data ingestion, log-returns regression, and statistical validation.
 
-## Overview
+---
 
-This platform provides a complete quantitative trading workflow:
+## 🎯 Project Context
 
-**Phase 1 - Data Ingestion:**
-- ✅ Multi-symbol WebSocket streams from Binance Futures
-- ✅ Async architecture with auto-reconnection
-- ✅ Thread-safe buffering and graceful shutdown
+This platform provides **quantitative analysis tools for crypto pairs trading**, specifically designed for statistical arbitrage strategies. It addresses the core challenge in pairs trading: **identifying mean-reverting relationships between correlated assets in real-time**.
 
-**Phase 2 - Persistence & Resampling:**
-- ✅ SQLite database (easily upgradable to PostgreSQL/TimescaleDB)
-- ✅ Batch insert optimization (100x performance improvement)
-- ✅ OHLC resampling (1s, 1m, 5m intervals)
+### **Business Problem**
+- Manual monitoring of crypto pairs is inefficient and error-prone
+- Raw price regression yields misleading hedge ratios due to scale mismatch
+- Traders need instant alerts when spreads deviate beyond statistical thresholds
+- Real-time data processing is critical for high-frequency trading decisions
 
-**Phase 3 - Analytics Engine:**
-- ✅ Price/volume statistics with rolling windows
-- ✅ OLS regression for pairs trading (hedge ratios, spreads)
-- ✅ Z-score calculations for trading signals
-- ✅ ADF stationarity testing
-- ✅ Rolling Pearson correlation
-- ✅ Smart caching with TTL (5-60s)
+### **Solution**
+A complete end-to-end analytics platform that:
+1. Ingests live tick data from Binance WebSocket
+2. Computes **log-returns-based regression** for scale-invariant metrics
+3. Validates stationarity using **Augmented Dickey-Fuller (ADF) tests**
+4. Alerts traders when Z-scores exceed configurable thresholds
+5. Provides professional-grade visualizations via an interactive dashboard
 
-**Phase 4 - REST API + Dashboard:**
-- ✅ Flask REST API with 7 endpoints
-- ✅ Plotly Dash interactive dashboard
-- ✅ Real-time charts (price, spread/z-score, correlation)
-- ✅ Widget-based controls
-- ✅ CSV export functionality
-- ✅ Auto-refresh every 5 seconds
+---
 
-## Features
+## 🏗️ Architecture
 
-### Real-time Data Ingestion
-- Connects to Binance Futures trade streams (`wss://fstream.binance.com/ws/{symbol}@trade`)
-- Normalizes raw trade events into structured data
-- Buffers incoming ticks in memory for processing
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    QUANT ANALYTICS PLATFORM                  │
+└─────────────────────────────────────────────────────────────┘
+                              │
+        ┌─────────────────────┼─────────────────────┐
+        │                     │                     │
+   ┌────▼────┐          ┌────▼────┐          ┌────▼────┐
+   │ INGESTION│          │ANALYTICS│          │   UI    │
+   │  Layer   │          │ Engine  │          │Dashboard│
+   └────┬────┘          └────┬────┘          └────┬────┘
+        │                     │                     │
+   WebSocket ───► SQLite ───► Regression ───► Dash/Plotly
+   (Binance)      (OHLC)      Stats/ADF       (Alerts)
+```
 
-### Connection Management
-- Automatic reconnection with exponential backoff (1s → 2s → 4s → 8s)
-- Ping/pong keep-alive mechanism
-- Comprehensive error handling and logging
+### **Components**
 
-### Monitoring
-- Live tick display with formatted output
-- Periodic status updates (every 10 seconds)
-- Per-symbol tick counters
+#### **1. Data Ingestion (`src/ingestion/`)**
+- **WebSocket Client**: Connects to Binance for BTC/ETH tick data
+- **Real-time Aggregation**: Converts ticks → 1s/1m/5m OHLC bars
+- **SQLite Storage**: Persistent storage with `ticks` and `ohlc` tables
 
-## Installation
+#### **2. Analytics Engine (`src/analytics/`)**
+- **Regression (`regression.py`)**: Log-returns OLS with sanity gates (|β| < 3, R² > 0.3)
+- **Stationarity (`stationarity.py`)**: ADF test on return spreads
+- **Correlation (`correlation.py`)**: Rolling correlation tracking
+- **Statistics (`statistics.py`)**: Z-score computation for spread monitoring
 
-### Prerequisites
-- Python 3.9 or higher
-- Internet connection for WebSocket streams
+#### **3. REST API (`src/api/`)**
+- **Flask Server**: Exposes `/api/pairs`, `/api/stats`, `/api/health`
+- **JSON Endpoints**: Serves regression results, Z-scores, ADF tests
+- **OHLC Upload**: CSV import for historical data
 
-### Setup
+#### **4. Dashboard (`src/dashboard/`)**
+- **Dash/Plotly UI**: Interactive charts (Price, Spread, Correlation, Heatmap)
+- **Compact Stats Cards**: 4 horizontal badges (Price Stats, Regression, Stationarity, Alerts)
+- **Live Status Banner**: Displays timestamp, timeframe, window settings
+- **Alert System**: Visual + audio notifications for Z-score thresholds
 
-1. **Clone or navigate to the project directory:**
-   ```bash
-   cd e:\Quant\crypto-analytics
-   ```
+---
 
-2. **Install dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   ```
+## 📊 Workflow
 
-## Usage
+```
+1. START PLATFORM
+   └─► python start_platform.py
 
-### Quick Start (All Phases)
+2. DATA INGESTION (Auto)
+   ├─► Connect to Binance WebSocket
+   ├─► Stream BTC/ETH ticks
+   ├─► Aggregate to OHLC (1s, 1m, 5m)
+   └─► Store in SQLite
 
-**Start the complete platform (recommended):**
+3. ANALYTICS COMPUTATION (Auto, every update)
+   ├─► Fetch aligned OHLC data
+   ├─► Compute log returns: r_t = log(P_t) - log(P_{t-1})
+   ├─► OLS Regression: r_ETH = α + β·r_BTC + ε
+   ├─► Sanity Gates:
+   │   ├─► |β| must be < 3.0
+   │   ├─► R² must be > 0.3
+   │   └─► σ(β) must be < |β|
+   ├─► Spread: s_t = r_ETH - β·r_BTC
+   ├─► Z-Score: z = (s_t - μ) / σ
+   └─► ADF Test on spread (stationarity check)
 
+4. DASHBOARD VISUALIZATION (Auto-refresh every 5s)
+   ├─► Fetch /api/pairs?symbol_x=BTCUSDT&symbol_y=ETHUSDT
+   ├─► Render compact stats cards
+   ├─► Plot charts (Price, Spread, Correlation)
+   └─► Trigger alerts if |Z| > threshold
+
+5. USER INTERACTION
+   ├─► Adjust timeframe (1s, 1m, 5m)
+   ├─► Change rolling window (10-500 periods)
+   ├─► Set Z-score threshold (default: 2.0)
+   └─► Export data to CSV
+```
+
+---
+
+## 🚀 Quick Start
+
+### **Prerequisites**
+- Python 3.8+
+- Internet connection (for Binance WebSocket)
+
+### **Installation**
 ```bash
+# Clone repository
+git clone https://github.com/Deezekay/Quant_Analytics.git
+cd Quant_Analytics
+
+# Install dependencies
+pip install -r requirements.txt
+```
+
+### **Run Platform**
+```bash
+# Single command to start all services
 python start_platform.py
 ```
 
-This starts:
-1. Data ingestion + analytics engine (`main.py`)
-2. Flask REST API (`run_api.py`) at `http://localhost:5000`
-3. Dash dashboard (`run_dashboard.py`) at `http://localhost:8050`
-4. Opens dashboard in your browser automatically
+This launches:
+- **WebSocket Ingestion** (port 8765)
+- **Flask API** (port 5000)
+- **Dash Dashboard** (port 8050)
 
-**Wait 60 seconds** for initial data collection before analytics become available.
+### **Access Dashboard**
+Open browser: `http://localhost:8050`
 
-### Individual Components
+---
 
-**Data ingestion only:**
-```bash
-python main.py
-```
-
-**Flask API only:**
-```bash
-python run_api.py
-```
-
-**Dash dashboard only:**
-```bash
-python run_dashboard.py
-```
-
-### Expected Output
-
-```
-[2024-12-16 10:30:15] INFO: Connecting to BTCUSDT...
-[2024-12-16 10:30:15] INFO: Connecting to ETHUSDT...
-[2024-12-16 10:30:16] INFO: Connected to BTCUSDT
-[2024-12-16 10:30:16] INFO: Connected to ETHUSDT
-[2024-12-16 10:30:16] INFO: Started WebSocket client for 2 symbols
-[2024-12-16 10:30:16] INFO: BTCUSDT | 2024-12-16 10:30:16.234 | $43,250.50 | 0.125000
-[2024-12-16 10:30:16] INFO: ETHUSDT | 2024-12-16 10:30:16.456 | $2,280.30 | 1.500000
-[2024-12-16 10:30:17] INFO: BTCUSDT | 2024-12-16 10:30:17.123 | $43,251.00 | 0.050000
-...
-[2024-12-16 10:30:26] INFO: Status - BTCUSDT: 124 ticks, ETHUSDT: 89 ticks
-```
-
-### Stopping the Platform
-
-Press **Ctrl+C** to trigger graceful shutdown:
-
-```
-[2024-12-16 10:35:42] INFO: Shutdown signal received
-[2024-12-16 10:35:42] INFO: Shutting down WebSocket client...
-[2024-12-16 10:35:42] INFO: Disconnected from BTCUSDT
-[2024-12-16 10:35:42] INFO: Disconnected from ETHUSDT
-[2024-12-16 10:35:42] INFO: WebSocket client stopped
-[2024-12-16 10:35:42] INFO: Shutdown complete
-```
-
-## Configuration
-
-All configuration is centralized in `src/config.py`:
-
-### Adding/Removing Symbols
-
-Edit the `SYMBOLS` list in `src/config.py`:
-
-```python
-SYMBOLS: List[str] = [
-    "btcusdt",
-    "ethusdt",
-    "solusdt",  # Add new symbols here
-]
-```
-
-### Adjusting Buffer Size
-
-Modify `BUFFER_SIZE` to control memory usage:
-
-```python
-BUFFER_SIZE: int = 1000  # Max queued ticks per symbol
-```
-
-### Logging Configuration
-
-Customize logging format and level:
-
-```python
-LOG_LEVEL: str = "INFO"  # Options: DEBUG, INFO, WARNING, ERROR
-```
-
-## Architecture
-
-### Project Structure
+## 📁 Project Structure
 
 ```
 crypto-analytics/
 ├── src/
-│   ├── __init__.py
+│   ├── analytics/
+│   │   ├── regression.py      # Log-returns OLS with sanity gates
+│   │   ├── stationarity.py    # ADF test implementation
+│   │   ├── correlation.py     # Rolling correlation
+│   │   ├── statistics.py      # Z-score computation
+│   │   ├── resampler.py       # OHLC aggregation
+│   │   └── engine.py          # Orchestrates all analytics
+│   ├── api/
+│   │   └── flask_server.py    # REST API endpoints
+│   ├── dashboard/
+│   │   └── app.py             # Dash UI (compact layout)
 │   ├── ingestion/
-│   │   ├── __init__.py
-│   │   └── binance_websocket.py    # WebSocket client implementation
-│   ├── storage/                     # Future: Database persistence
-│   ├── analytics/                   # Future: Quantitative analytics
-│   └── config.py                    # Centralized configuration
-├── requirements.txt
-├── README.md
-└── main.py                          # Entry point
+│   │   └── binance_websocket.py  # Live data stream
+│   └── storage/
+│       └── database.py        # SQLite ORM
+├── scripts/
+│   ├── check_db.py            # Database verification
+│   ├── test_analytics.py      # Analytics testing
+│   └── validate_db.py         # Data validation
+├── start_platform.py          # Main entry point
+├── schema.sql                 # Database schema
+├── requirements.txt           # Python dependencies
+└── README.md                  # This file
 ```
 
-### Data Flow
+---
 
-```
-Binance Futures → WebSocket → Normalization → Queue Buffer → Display
-                                                    ↓
-                                         (Future: DB Storage)
-```
+## 🔬 Key Features
 
-### Design Principles
+### **1. Log-Returns Regression (Industry Standard)**
+- **Why Log Returns?** Scale-invariant, numerically stable, additive
+- **Formula**: `r_t = log(P_t) - log(P_{t-1})`
+- **Interpretation**: β = 1.12 means "ETH returns 1.12% when BTC returns 1%"
 
-1. **Separation of Concerns**: Ingestion logic is isolated from future storage/analytics
-2. **Async-first**: Built on `asyncio` for efficient concurrency
-3. **Extensibility**: Easy to add new symbols, exchanges, or data processors
-4. **Production-ready**: Comprehensive error handling and logging
+### **2. Professional Sanity Gates**
+Regression results are **suppressed** if:
+- `|β| > 3.0` → Unrealistic leverage (data misalignment)
+- `R² < 0.3` → Weak relationship (not suitable for pairs trading)
+- `σ(β) > |β|` → Unstable estimate (high uncertainty)
 
-## Technical Specifications
+### **3. Real-Time Alerts**
+- **Trigger**: When `|Z-score| > threshold` (default: 2.0)
+- **Interpretation**: Spread has deviated >2 standard deviations
+- **Action**: Mean reversion trade opportunity
 
-### Dependencies
-- **websockets** (v12.0): Modern async WebSocket client library
+### **4. Compact Dashboard UI**
+- **4 Horizontal Stats Cards**: Price Stats, Regression, Stationarity, Alerts
+- **Minimal vertical space**: ~70px total (vs 180px before)
+- **Charts prioritized**: Occupy 75% of viewport
+- **Z-Score input**: Inline (60px wide)
 
-### Data Model
+---
 
+## 📈 Expected Results
+
+After 60 seconds of data collection:
+- **β (Beta)**: 0.8 to 1.2 (BTC-ETH return sensitivity)
+- **R²**: 0.5 to 0.8 (strong explanatory power)
+- **Intercept (α)**: ~0 (near zero for returns)
+- **ADF p-value**: < 0.05 (spread is stationary at 95% confidence)
+
+---
+
+## 🛠️ Configuration
+
+Edit `src/config.py`:
 ```python
-@dataclass
-class TradeData:
-    symbol: str          # Trading pair (e.g., "BTCUSDT")
-    timestamp: datetime  # Trade execution time
-    price: float         # Trade price
-    size: float          # Trade quantity
+# API Settings
+FLASK_HOST = 'localhost'
+FLASK_PORT = 5000
+
+# Dashboard Settings
+DASH_HOST = 'localhost'
+DASH_PORT = 8050
+DASHBOARD_UPDATE_INTERVAL = 5000  # 5 seconds
+
+# Analytics Settings
+DEFAULT_TRADING_PAIR_X = 'BTCUSDT'
+DEFAULT_TRADING_PAIR_Y = 'ETHUSDT'
+DEFAULT_ROLLING_WINDOW = 60
+ZSCORE_THRESHOLD = 2.0
+
+# Database
+DATABASE_PATH = 'data/crypto_analytics.db'
 ```
 
-### WebSocket Message Format (Binance)
+---
 
-```json
-{
-  "e": "trade",
-  "s": "BTCUSDT",
-  "T": 1702742400000,
-  "p": "43250.50",
-  "q": "0.125"
-}
+## 🧪 Testing
+
+```bash
+# Test database setup
+python scripts/check_db.py
+
+# Test analytics engine
+python scripts/test_analytics.py
+
+# Validate data quality
+python scripts/validate_db.py
 ```
 
-## Next Steps (Phase 2)
+---
 
-- [ ] **Database Integration**: Persist ticks to TimescaleDB/PostgreSQL
-- [ ] **Analytics Engine**: Real-time calculations (VWAP, OBV, correlations)
-- [ ] **REST API**: Expose data via FastAPI endpoints
-- [ ] **WebSocket Broadcasting**: Real-time dashboard feeds
-- [ ] **Historical Backtesting**: Query and analyze stored data
+## 📊 API Endpoints
 
-## Troubleshooting
+### **GET /api/pairs**
+```bash
+curl "http://localhost:5000/api/pairs?symbol_x=BTCUSDT&symbol_y=ETHUSDT&interval=1m&window=60"
+```
 
-### Connection Issues
+Returns:
+- `regression`: {hedge_ratio, r_squared, intercept, std_error}
+- `z_score`: {latest, values, mean, std}
+- `stationarity`: {is_stationary, p_value, test_statistic}
+- `correlation`: Rolling correlation values
 
-If you see repeated connection failures:
-1. Check your internet connection
-2. Verify Binance Futures is accessible in your region
-3. Check firewall settings for WebSocket connections
+### **GET /api/stats/{symbol}**
+```bash
+curl "http://localhost:5000/api/stats/BTCUSDT"
+```
 
-### High CPU Usage
+Returns basic price statistics.
 
-If CPU usage is high:
-1. Reduce the number of symbols in `config.py`
-2. Increase `BUFFER_SIZE` if queues are frequently full
-3. Add artificial delays in the display loop if needed
+### **POST /api/upload/ohlc**
+Upload CSV with historical OHLC data.
 
-### Missing Ticks
+---
 
-If ticks are being dropped:
-1. Increase `BUFFER_SIZE` in `config.py`
-2. Check logs for "Queue full" warnings
-3. Consider implementing database storage to offload processing
+## 🎯 Use Cases
 
-## License
+1. **Pairs Trading Desks**: Real-time spread monitoring
+2. **Quant Researchers**: Statistical validation of trading relationships
+3. **Hedge Funds**: Risk-neutral arbitrage signal generation
+4. **Crypto Traders**: Automated mean-reversion alerts
 
-This project is part of a quantitative trading analytics platform.
+---
 
-## Author
+## ⚠️ Important Notes
 
-Built for a crypto trading firm - Phase 1: Data Ingestion Foundation
+- **Database Excluded**: The `data/` folder is gitignored (721MB database)
+- **Fresh Data**: Clone creates empty DB, platform auto-populates from Binance
+- **Internet Required**: WebSocket needs live connection
+- **Single Command**: `python start_platform.py` runs everything
+
+---
+
+## 📜 License
+
+MIT License - Free to use, modify, and distribute.
+
+---
+
+## 👨‍💻 Author
+
+**Deezekay**  
+GitHub: [@Deezekay](https://github.com/Deezekay)
+
+---
+
+## 🙏 Acknowledgments
+
+- **Binance**: Live WebSocket data
+- **Plotly/Dash**: Interactive visualizations
+- **SciPy/Statsmodels**: Statistical analysis
+
+---
+
+**Built with professional quant standards. Ready for production use.** 🚀
