@@ -1,0 +1,27 @@
+# Core dependencies for crypto analytics platform
+
+# WebSocket client library for async connections
+websockets==12.0
+
+# Async SQLite database driver
+aiosqlite==0.19.0
+
+# Scientific computing (Phase 3 - Analytics)
+numpy==1.24.0           # Numerical computations
+pandas==2.0.3           # DataFrame operations, rolling windows
+scipy==1.10.1           # Statistical functions (OLS regression)
+statsmodels==0.14.0     # Advanced time-series analysis (ADF test)
+
+# Web framework (Phase 4 - API & Dashboard)
+flask==3.0.0            # REST API backend
+flask-cors==4.0.0       # CORS middleware for API
+dash==2.14.2            # Interactive dashboard
+dash-bootstrap-components==1.5.0  # Bootstrap components for Dash
+plotly==5.18.0          # Interactive charts
+requests==2.31.0        # HTTP client for dashboard
+
+# Additional utilities
+# Note: datetime is part of Python standard library
+# Note: asyncio is part of Python standard library
+# Note: json is part of Python standard library
+
