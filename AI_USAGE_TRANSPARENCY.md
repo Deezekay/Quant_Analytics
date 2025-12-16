@@ -63,13 +63,13 @@ AI implemented code based on human specifications:
 
 ## AI Contributions
 
-**AI-Assisted (Human-Guided):**
+### 1. AI-Assisted (Human-Guided):
 - Log-returns regression implementation (human specified the math)
 - ADF test integration (human specified statsmodels usage)
 - OHLC resampling logic (human defined intervals and logic)
 - Analytics engine orchestration (human defined workflow)
 
-### 2. **Bug Fixes & Debugging** (~60% AI)
+### 1. **Bug Fixes & Debugging** (~60% AI)
 AI diagnosed and fixed issues identified by human testing:
 - `numpy.bool_` JSON serialization error
 - Regression producing unrealistic β values (raw prices issue)
