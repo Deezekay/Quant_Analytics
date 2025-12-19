@@ -50,7 +50,6 @@ This project was developed through **human-AI collaboration**, where AI served a
 - Guided debugging and troubleshooting
 - Made final decisions on what to keep/delete
 
----
 ###6. **Code Implementation** (~50% Human)
 AI implemented code based on human specifications:
 
@@ -59,6 +58,8 @@ AI implemented code based on human specifications:
 - Database ORM setup (`database.py`, `schema.sql`)
 - Flask API endpoints (`flask_server.py`)
 - Dash dashboard layout (`app.py` - initial version)
+
+---
 
 
 ## AI Contributions
