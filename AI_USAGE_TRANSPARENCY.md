@@ -50,7 +50,7 @@ This project was developed through **human-AI collaboration**, where AI served a
 - Guided debugging and troubleshooting
 - Made final decisions on what to keep/delete
 
-###6. **Code Implementation** (~50% Human)
+### 6. **Code Implementation** (~50% Human)
 AI implemented code based on human specifications:
 
 **AI assisted Human Generated:**
